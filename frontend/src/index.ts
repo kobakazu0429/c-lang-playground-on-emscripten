@@ -1,34 +1,31 @@
+import { templates } from "./template";
 import { main } from "./runner";
 const sourceCodeArea = document.getElementById("source-code");
+const templatesArea = document.getElementById("templates");
 const sendButton = document.getElementById("send-button");
 const excuteButton = document.getElementById("excute-button");
 
-const templateCode = `#include <stdio.h>
+templatesArea.append(
+  ...Object.keys(templates).map((name) => {
+    const button = document.createElement("button");
+    button.innerText = name;
+    button.onclick = () => (sourceCodeArea.value = templates[name]);
+    return button;
+  })
+);
 
-int main() {
-  int a = 429;
-  float b = 3.141592;
-  char c = 'A';
-  char d[] = "Hello, World!";
+sourceCodeArea.value = templates["simple print value"];
 
-  printf("%d\\n", a);
-  printf("%04d\\n", a);
-  printf("%f\\n", b);
-  printf("%3.2f\\n", b);
-  printf("%c\\n", c);
-  printf("%s\\n", d);
-  return 0;
-}`;
-sourceCodeArea.textContent = templateCode;
-
-sendButton.addEventListener("click", async () => {
+sendButton.addEventListener("click", async (e) => {
   console.log("sending...");
+  excuteButton.disabled = true;
+
   const param = {
     method: "POST",
     headers: {
       "Content-Type": "application/json; charset=utf-8",
     },
-    body: JSON.stringify({ src: sourceCodeArea.textContent }),
+    body: JSON.stringify({ src: sourceCodeArea.value }),
   };
   const res = await fetch("http://localhost:3000/c2wasm", param);
   const binary = await res.arrayBuffer();
