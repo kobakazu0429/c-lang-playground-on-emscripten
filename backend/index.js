@@ -6,6 +6,8 @@ const express = require("express");
 const cors = require('cors')
 const spawn = require('child_process').spawn;
 
+const parser = require("./parser");
+
 const app = express();
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }));
@@ -14,6 +16,7 @@ app.use(cors())
 const port = 3000;
 
 const compileToWasm = async (src, res) => {
+  // console.log(src);
   await fs.writeFile("user.c", src);
 
   const p = spawn("docker", ["run", "--rm", "-v $(pwd):/src", "-u $(id -u):$(id -g)", "emscripten/emsdk", "emcc user.c -Oz -o user.mjs"], { shell: true });
@@ -21,14 +24,17 @@ const compileToWasm = async (src, res) => {
   p.stderr.on('data', payload => console.log(`[spawn/stderr]: ${payload.toString().trim()}`))
   p.on('exit', async exit_code => {
     console.log(`[spawn/exit] ${exit_code}`)
-    const wasm = await fs.readFile("user.wasm")
-      .catch((error) => {
-        console.log(error);
-        res.status(404).end();
-        return;
-      });
+    const [wasm, result] = await Promise.all([
+      fs.readFile("user.wasm"),
+      parser()
+    ]).catch((error) => {
+      console.log(error);
+      res.status(404).end();
+      return;
+    });
 
-    res.send(wasm);
+    console.log(result);
+    res.send({ result, data: wasm });
   })
 }
 
