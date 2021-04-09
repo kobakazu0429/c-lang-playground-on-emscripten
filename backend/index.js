@@ -15,11 +15,21 @@ app.use(cors())
 
 const port = 3000;
 
+const options = [
+  "-Oz"
+];
+
+const mainCommand = [
+  "emcc user.c",
+  ...options,
+  "-o user.mjs"
+]
+
 const compileToWasm = async (src, res) => {
   // console.log(src);
   await fs.writeFile("user.c", src);
 
-  const p = spawn("docker", ["run", "--rm", "-v $(pwd):/src", "-u $(id -u):$(id -g)", "emscripten/emsdk", "emcc user.c -Oz -o user.mjs"], { shell: true });
+  const p = spawn("docker", ["run", "--rm", "-v $(pwd):/src", "-u $(id -u):$(id -g)", "emscripten/emsdk", ...mainCommand], { shell: true });
   p.stdout.on('data', payload => console.log(`[spawn/stdout]: ${payload.toString().trim()}`))
   p.stderr.on('data', payload => console.log(`[spawn/stderr]: ${payload.toString().trim()}`))
   p.on('exit', async exit_code => {
