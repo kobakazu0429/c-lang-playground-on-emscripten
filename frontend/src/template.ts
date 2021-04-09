@@ -81,6 +81,16 @@ int main() {
   return 0;
 }`;
 
+const scanf = `#include <stdio.h>
+
+int main() {
+  int a = 429;
+  printf("%d\\n", a);
+  scanf("%d", &a);
+  printf("%d\\n", a);
+  return 0;
+}`;
+
 export const templates = {
   "simple print value": printValue,
   "use define": define,
@@ -88,4 +98,5 @@ export const templates = {
   "address and pointer": addressPtr,
   function: functionTemplate,
   recursive: recursive,
+  scanf: scanf,
 };
