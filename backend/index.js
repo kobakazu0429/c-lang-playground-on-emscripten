@@ -13,10 +13,13 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }));
 app.use(cors())
 
-const port = 3000;
+const port = 3001;
 
 const options = [
-  "-Oz"
+  "-Oz",
+  `-s NO_EXIT_RUNTIME=1`,
+  `-s "EXTRA_EXPORTED_RUNTIME_METHODS=['ccall', 'cwrap']"`,
+  // `-s "EXPORTED_FUNCTIONS=['_sum', '_print']"`
 ];
 
 const mainCommand = [
